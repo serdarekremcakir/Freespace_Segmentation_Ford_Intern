@@ -77,10 +77,10 @@ Size information of the generated tensor:
 
 The same processes are applied for masks, but there is a difference. The difference is one hot encoder. Mask are grayscale images. 
 
-***What is grayscale image?***  
+### ***What is grayscale image?***  
 A grayscale image is simply one in which the only colors are shades of gray. The reason for differentiating such images from any other sort of color image is that less information needs to be provided for each pixel. 
 
-***What is One Hot Encoding?***  
+### ***What is One Hot Encoding?***  
 One Hot Encoding means that categorical variables are represented as binary. This operation requires mapping categorical values to integer values first. Then, each integer value is represented as a binary vector with all zero values except the integer index marked with 1
 
 <p align="center">
@@ -117,3 +117,56 @@ Size information of the generated tensor:
 
 Codes of the part: [preprocess.py](https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/src/preprocess.py)
 
+## Model
+U-Net model was used in the project. The U-net model gives better results for semantic segmentation than other models, even with fewer photos.
+
+The architecture contains two paths (Encoder and Decoder).
+
+* The encoder is the first half in the architecture diagram. You apply convolution blocks followed by a maxpool downsampling to encode the input image into feature representations at multiple different levels.
+
+* The decoder is the second half of the architecture. The goal is to semantically project the discriminative features (lower resolution) learned by the encoder onto the pixel space (higher resolution) to get a dense classification. The decoder consists of  **upsampling**  and  **concatenation**  followed by regular convolution operations.
+
+<p align="center">
+  <img src="https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/assets/unet.png">
+</p>
+
+[Click for source](https://developers.arcgis.com/python/guide/how-unet-works/)
+
+
+### ***What is Convolution?***  
+Convolution is the simple application of a filter to an input that results in activation. Repeated application of the same filter to an input results in a map of activations called a feature map, indicating the locations and strength of a detected feature in input, such as an image.
+
+<p align="center">
+  <img src="https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/assets/convolution.gif" width="500">
+</p>
+
+[Click for source](https://machinelearningmastery.com/convolutional-layers-for-deep-learning-neural-networks/)
+
+### ***What is Max Pooling?***  
+The function of pooling is to reduce the size of the feature map so that we have fewer parameters in the network. Basically from every kernel size block of the input feature map, we select the maximum pixel value and thus obtain a pooled feature map. 
+
+<p align="center">
+  <img src="https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/assets/pooling.gif" width="500">
+</p>
+
+[Click for source](https://towardsdatascience.com/understanding-semantic-segmentation-with-unet-6be4f42d4b47)
+
+
+### ***What is Activation Function?***  
+In a neural network, the activation function is responsible for transforming the summed weighted input from the node into the activation of the node or output for that input.
+
+### **ReLu activation function is used in this model.**
+
+The rectified linear activation function or ReLU for short is a piecewise linear function that will output the input directly if it is positive, otherwise, it will output zero. It has become the default activation function for many types of neural networks because a model that uses it is easier to train and often achieves better performance.
+
+<p align="center">
+  <img src="https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/assets/relu.png" width="665">
+</p>
+
+[Click for source](https://machinelearningmastery.com/rectified-linear-activation-function-for-deep-learning-neural-networks/)
+
+I used the codes of a model that was working correctly, used before in a lot of projects.
+
+[Click for the main source of the model used in the project](https://github.com/milesial/Pytorch-UNet)
+
+Codes of the part: [modelnew.py](https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/src/modelnew.py)
