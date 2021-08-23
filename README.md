@@ -170,3 +170,120 @@ I used the codes of a model that was working correctly, used before in a lot of 
 [Click for the main source of the model used in the project](https://github.com/milesial/Pytorch-UNet)
 
 Codes of the part: [modelnew.py](https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/src/modelnew.py)
+
+
+## Train
+
+Parameters required when training the model:
+
+    ######## PARAMETERS ##########
+    valid_size = 0.3 
+    test_size = 0.1
+    batch_size = 8
+    epochs = 25
+    cuda = False
+    input_shape = (224, 224)
+    n_classes = 25
+    augmentiondene = False
+    ###############################
+        
+File directories required when training the model:
+
+    ######### DIRECTORIES #########
+    DATA_DIR = os.path.join('../data_test')
+    IMAGE_DIR = os.path.join(DATA_DIR, 'images')
+    MASK_DIR = os.path.join(DATA_DIR, 'masks')
+    PREDICT_DIR = os.path.join(DATA_DIR, 'predicts')
+    model_name = "serdar-model.pt"
+    model_path = os.path.join("../model", model_name)
+    ###############################
+
+Images and masks were prepared for model training. Train, validation and test data list were determined.
+
+    image_path_list = glob.glob(os.path.join(IMAGE_DIR, '*'))
+    image_path_list.sort()
+    
+    mask_path_list = glob.glob(os.path.join(MASK_DIR, '*'))
+    mask_path_list.sort()
+    
+    indices = np.random.permutation(len(image_path_list))
+    
+    test_ind = int(len(indices) * test_size)
+    valid_ind = int(test_ind + len(indices) * valid_size)
+    
+    test_input_path_list = image_path_list[:test_ind]
+    test_label_path_list = mask_path_list[:test_ind]
+    
+    valid_input_path_list = image_path_list[test_ind:valid_ind]
+    valid_label_path_list = mask_path_list[test_ind:valid_ind]
+    
+    train_input_path_list = image_path_list[valid_ind:]
+    train_label_path_list = mask_path_list[valid_ind:]
+
+To be able to intervene more easily with the parameters and file paths required for model training, I have collected them in a single file.
+
+Codes of the part:  [parameters.py](https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/src/parameters.py)
+
+---
+
+The model is called, the optimizer and the loss function are determined.
+
+    model = FoInternNet(n_channels=3, n_classes=2, bilinear=True)
+        
+    criterion = nn.BCELoss() #Binary Cross Entropy Loss kısaltmasıdır.
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+
+The amount of data specified in the **"batch_size"** variable is taken from the training dataset and converted to the tensor format. The same process is done for masks. The selected data is given as input to the model and compared with the expected result. A loss value occurs as a result of the comparison. Depending on this loss value, **backpropagation** is done.  
+
+
+    for  ind  in  range(steps_per_epoch):
+	    batch_input_path_list = train_input_path_list[batch_size*ind:batch_size*(ind+1)]
+	    batch_label_path_list = train_label_path_list[batch_size*ind:batch_size*(ind+1)]
+	    batch_input = tensorize_image(batch_input_path_list, input_shape, cuda)
+	    batch_label = tensorize_mask(batch_label_path_list, input_shape, n_classes, cuda)
+	    optimizer.zero_grad()
+	    outputs = model(batch_input)
+	    loss = criterion(outputs, batch_label)
+	    loss.backward()
+	    optimizer.step()
+	    running_loss += loss.item()
+
+
+Model is tested with validation data at the end of each epoch.
+
+    for (valid_input_path, valid_label_path) in zip(valid_input_path_list, valid_label_path_list):
+	    batch_input = tensorize_image([valid_input_path], input_shape, cuda)
+	    batch_label = tensorize_mask([valid_label_path], input_shape, n_classes, cuda)
+	    outputs = model(batch_input)
+	    loss = criterion(outputs, batch_label)
+	    val_loss += loss
+
+
+These processes are repeated for the number as many **epochs**. Training loss and validation loss are saved in each epoch.
+
+The saved loss values are visualized. The graph is drawn.
+
+
+    epoch_list=list(range(1, epochs+1))
+    norm_validation = [float(i)/sum(val_loss_save) for i in val_loss_save]
+    norm_train = [float(i)/sum(run_loss_save) for i in run_loss_save]
+    plt.figure(figsize=(16,8))
+    plt.subplot(221)
+    plt.plot(epoch_list, norm_train,color="red")
+    plt.title("Train Loss", fontsize=13)
+    plt.subplot(222)
+    plt.plot(epoch_list, norm_validation, color="blue")
+    plt.title("Validation Loss", fontsize=13)
+    plt.subplot(212)
+    plt.plot(epoch_list, norm_train, color="red")
+    plt.plot(epoch_list, norm_validation, color="blue")
+    plt.title("Train and Validation Loss", fontsize=13)
+    plt.savefig("drive/MyDrive/InternP1/serdar/serdar-loss-normalization.png")
+    plt.show()
+
+The graph that emerged after the training:
+<p align="center">
+  <img src="https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/assets/lossgraph.png" width="750">
+</p>
+
+Codes of the part:  [train.py](https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/src/train.py)
