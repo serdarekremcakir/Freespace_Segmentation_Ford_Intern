@@ -287,3 +287,51 @@ The graph that emerged after the training:
 </p>
 
 Codes of the part:  [train.py](https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/src/train.py)
+
+
+## Predict
+
+The predictions of the trained model were observed test dataset.
+
+The images in the test data set are converted to the tensor format. Data in tensor format is given to the model. Outputs from the model are converted to masks. Parts of mask images designated as drivable areas are converted to purple and added to the original test data.
+
+
+    for image in range(images):
+	    img = cv2.imread(image)
+	    batch_test = tensorize_image([image], input_shape, cuda)
+	    output = model(batch_test)
+	    out = torch.argmax(output, axis=1)
+	    out = out.cpu()
+	    outputs_list = out.detach().numpy()
+	    mask = np.squeeze(outputs_list, axis=0)
+	    mask_uint8 = mask.astype('uint8')
+	    mask_resize = cv2.resize(mask_uint8, ((img.shape[1]), (img.shape[0])), interpolation = cv2.INTER_CUBIC)
+	    img_resize = cv2.resize(img, input_shape)
+	    mask_ind = mask_resize == 1
+	    copy_img = img.copy()
+	    img[mask_resize==1, :] = (255, 0, 125)
+	    opac_image = (img/2 + copy_img/2).astype(np.uint8)
+	    cv2.imwrite(os.path.join(predict_path, image.split("/")[-1]), opac_image)
+
+
+
+
+The model gave a good result on roads with bright, light traffic, and no objects such as cone and barrier.
+
+Successfully predicted images:
+<p align="center">
+  <img src="https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/assets/spre.png" width="600">
+</p>
+
+The model gave a bad result in conditions such as dark, tunnel, and under the bridge.
+
+Unsuccessfully predicted images:
+<p align="center">
+  <img src="https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/assets/unspre.png" width="750">
+</p>
+
+
+The model must be retrained with new data obtained after data augmentation to correct the unsuccessfully predicted images.
+
+
+Codes of the part:  [predict.py](https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/src/predict.py)
