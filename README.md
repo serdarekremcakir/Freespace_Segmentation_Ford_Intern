@@ -1,14 +1,6 @@
 # Freespace Segmentation
 The project aims to determine the drivable area with semantic segmentation.
 
-##  Main topics of the project
-The project consists of 6 main titles. These:
- - json2mask
- - preprocess
- - model
- - train
- - augmention
-
 ## Json to Mask
 JSON files provide location information of points surrounding the area marked as drivable.
 
