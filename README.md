@@ -366,10 +366,11 @@ The defined transform was applied to the data in the training dataset.  New imag
 
 If the augmentation variable in the parameters.py file is selected as True, the model training will be done with the train dataset, which also contains the new data.
 
+Augmented images:
+
 <p align="center">
   <img src="https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/assets/aug.png" width="575">
 </p>
 
-Augmented images:
 
 Codes of the part:  [augmention.py](https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/src/augmention.py)
