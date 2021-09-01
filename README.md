@@ -335,3 +335,41 @@ The model must be retrained with new data obtained after data augmentation to co
 
 
 Codes of the part:  [predict.py](https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/src/predict.py)
+
+## Data Augmention
+
+The transform is defined to be used to change the brightness and contrast values of the data.
+
+    deneme = transforms.Compose([
+    transforms.ColorJitter(brightness=0.4, contrast=0.4, hue=0.06),
+    ])
+
+
+		
+The defined transform was applied to the data in the training dataset.  New images were saved in a different file with a new name. The file paths of the new images have been added to the train_input_path_list.
+
+    def imageaug():
+	    uzunluk = len (train_input_path_list)
+	    i = 0
+		for image in tqdm.tqdm(train_input_path_list):
+		    q1 = image[20:-4] + "7.jpg"
+		    q2 = augimage + q1
+		    x = Image.open(image)
+		    x = deneme(x)
+		    x = np.array(x)
+		    cv2.imwrite(q2,x)
+		    i +=1
+		    train_input_path_list.append(q2)
+		    if uzunluk <= i:
+			    break;
+	    return train_input_path_list
+
+If the augmentation variable in the parameters.py file is selected as True, the model training will be done with the train dataset, which also contains the new data.
+
+<p align="center">
+  <img src="https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/assets/aug.png" width="575">
+</p>
+
+Augmented images:
+
+Codes of the part:  [augmention.py](https://github.com/serdarekremcakir/Freespace_Segmentation_Ford_Intern/blob/main/src/augmention.py)
